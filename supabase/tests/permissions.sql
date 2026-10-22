@@ -20,6 +20,9 @@ declare b integer;q integer;saved integer;answer jsonb;payload jsonb;
 begin
  if (select count(*) from public.inspections)<>0 then raise exception 'Inspector read inspections';end if;
  if (select count(*) from public.profiles)<>1 then raise exception 'Inspector read other profiles';end if;
+ begin perform public.app_api('/deleted-inspections');raise exception 'Inspector read deleted records';exception when insufficient_privilege then null;end;
+ begin perform public.app_api('/reports/1/delete','POST','{"revision":1}');raise exception 'Inspector deleted record';exception when insufficient_privilege then null;end;
+ begin perform public.app_api('/reports/1','PATCH','{"revision":1}');raise exception 'Inspector edited record';exception when insufficient_privilege then null;end;
  begin perform public.app_api('/issues');raise exception 'Inspector read issues';exception when insufficient_privilege then null;end;
  begin perform public.app_api('/reports');raise exception 'Inspector read reports';exception when insufficient_privilege then null;end;
  begin perform public.app_api('/users/00000000-0000-4000-8000-000000000002','PATCH','{"role":"admin"}');raise exception 'Inspector escalated privileges';exception when insufficient_privilege then null;end;
@@ -53,6 +56,17 @@ begin
  if r->>'started_at' is null or (r->>'duration_seconds')::integer<0 then raise exception 'Timing missing or invalid';end if;
  if r->>'branch_name'<>'RLS test branch' or r->'answers'->0->>'question_text'<>'RLS global question' then raise exception 'History was changed';end if;
  if jsonb_array_length(public.app_api('/export'))<>1 then raise exception 'Export count incorrect';end if;
+ perform public.app_api('/reports/'||i,'PATCH',jsonb_build_object('revision',1,'note','Updated','answers',jsonb_build_array(jsonb_build_object('question_id',q,'rating',5))));
+ r=public.app_api('/reports/'||i);
+ if r->>'note'<>'Updated' or r->'answers'->0->>'rating'<>'5' or r->>'revision'<>'2' then raise exception 'Edit failed';end if;
+ begin perform public.app_api('/reports/'||i,'PATCH',jsonb_build_object('revision',1));raise exception 'STALE_WRITE_ALLOWED';exception when raise_exception then if sqlerrm='STALE_WRITE_ALLOWED' then raise;end if;end;
+ perform public.app_api('/reports/'||i||'/delete','POST','{"revision":2}');
+ if (public.app_api('/reports')->>'total')::integer<>0 or jsonb_array_length(public.app_api('/export'))<>0 or (public.app_api('/issues')->>'total')::integer<>0 or (public.app_api('/branch-comparison')->>'total_selected')::integer<>0 then raise exception 'Deleted report leaked into analytics';end if;
+ if jsonb_array_length(public.app_api('/deleted-inspections'))<>1 then raise exception 'Recovery list missing';end if;
+ begin perform public.app_api('/reports/'||i);raise exception 'DELETED_READ_ALLOWED';exception when raise_exception then if sqlerrm='DELETED_READ_ALLOWED' then raise;end if;end;
+ perform public.app_api('/reports/'||i||'/restore','POST','{"revision":3}');
+ if (public.app_api('/reports')->>'total')::integer<>1 then raise exception 'Restore failed';end if;
+
  begin perform public.app_api('/users/00000000-0000-4000-8000-000000000001','PATCH','{"active":false}');raise exception 'TEST_EXPECTED_FAILURE';exception when raise_exception then if sqlerrm='TEST_EXPECTED_FAILURE' then raise;end if;end;
  perform public.app_api('/users/00000000-0000-4000-8000-000000000002','PATCH','{"active":false}');
 end $$;
