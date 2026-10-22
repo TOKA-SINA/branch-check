@@ -1,0 +1,13 @@
+project_id = "branch-check"
+
+[auth]
+enable_signup = false
+minimum_password_length = 12
+
+[auth.email]
+enable_signup = false
+
+[functions.manage-users]
+# The function validates the Bearer token itself using auth.getUser(token).
+# Supports projects using asymmetric signing keys.
+verify_jwt = false
