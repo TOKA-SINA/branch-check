@@ -2,7 +2,7 @@ project_id = "branch-check"
 
 [auth]
 enable_signup = false
-minimum_password_length = 12
+minimum_password_length = 6
 
 [auth.email]
 enable_signup = false

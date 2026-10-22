@@ -26,7 +26,7 @@ Deno.serve(async (req: Request) => {
   let b:Record<string,unknown>;
   try { b = JSON.parse(text); } catch { return reply(400,{error:'არასწორი მოთხოვნა.'}); }
   if (!b || typeof b !== 'object' || Array.isArray(b)) return reply(400,{error:'არასწორი მოთხოვნა.'});
-  if (typeof b.password !== 'string' || b.password.length < 12 || b.password.length > 128) return reply(400,{error:'პაროლი უნდა შეიცავდეს 12–128 სიმბოლოს.'});
+  if (typeof b.password !== 'string' || b.password.length < 6 || b.password.length > 128) return reply(400,{error:'პაროლი უნდა შეიცავდეს 6–128 სიმბოლოს.'});
   if (b.action === 'create') {
    const username = typeof b.username === 'string' ? b.username.trim().toLowerCase() : '';
    const name = typeof b.name === 'string' ? b.name.trim() : '';

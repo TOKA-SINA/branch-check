@@ -1,4 +1,4 @@
-# ობიექტი — Supabase + GitHub
+# ობიექტების მონიტორინგი — Supabase + GitHub
 
 ქართულენოვანი ფილიალების შემოწმების სისტემა. **HTML/CSS/JavaScript გვერდი GitHub Pages-ზე; ავტორიზაცია და PostgreSQL ბაზა Supabase-ში.** თქვენს კომპიუტერზე მუდმივად გაშვებული Node სერვერი აღარ არის საჭირო.
 
@@ -13,11 +13,11 @@
 
 ეს ფაილები საწყისი მიგრაციებია და ერთხელ სრულდება. შემდეგ ცვლილებებს დაამატეთ ახალი მიგრაცია. არსებული სხვა აპლიკაციის ბაზაზე ნუ გაუშვებთ.
 
-Authentication-ის პარამეტრებში გამორთეთ **Allow new users to sign up** და anonymous sign-ins. ჩართეთ email/password ავტორიზაცია; პაროლის მინიმუმი დააყენეთ 12 სიმბოლოზე. `supabase/config.toml` ადგილობრივ კონფიგურაციას აღწერს; მისი არსებობა Dashboard-ის პარამეტრებს თავისთავად არ ცვლის.
+Authentication-ის პარამეტრებში გამორთეთ **Allow new users to sign up** და anonymous sign-ins. ჩართეთ email/password ავტორიზაცია; პაროლის მინიმუმი დააყენეთ 6 სიმბოლოზე. `supabase/config.toml` ადგილობრივ კონფიგურაციას აღწერს; მისი არსებობა Dashboard-ის პარამეტრებს თავისთავად არ ცვლის.
 
 ## 2. პირველი ადმინისტრატორი
 
-Supabase Dashboard → Authentication → Users → Add user/Create user. შექმენით თქვენთვის ანგარიში email-ით **admin@branch-check.invalid** და თქვენი უნიკალური პაროლით (მინიმუმ 12 სიმბოლო), დადასტურებული email-ით. ვებაპში მომხმარებლის სახელი იქნება **admin**. ეს ტექნიკური email-ია; წერილების მისაღებად არ გამოიყენება.
+Supabase Dashboard → Authentication → Users → Add user/Create user. შექმენით თქვენთვის ანგარიში email-ით **admin@branch-check.invalid** და თქვენი უნიკალური პაროლით (მინიმუმ 6 სიმბოლო), დადასტურებული email-ით. ვებაპში მომხმარებლის სახელი იქნება **admin**. ეს ტექნიკური email-ია; წერილების მისაღებად არ გამოიყენება.
 
 ანგარიშის შექმნის შემდეგ SQL Editor-ში გაუშვით:
 
