@@ -23,7 +23,9 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - run: supabase start
+      - run: supabase start --help
+      - run: supabase start -x studio,imgproxy,storage-api,edge-runtime,realtime,logflare,vector,supavisor
+        timeout-minutes: 8
       - run: supabase test db
       - if: always()
         run: supabase stop --no-backup
