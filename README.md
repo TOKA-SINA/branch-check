@@ -2,7 +2,7 @@
 
 ქართულენოვანი ფილიალების შემოწმების სისტემა. **HTML/CSS/JavaScript გვერდი GitHub Pages-ზე; ავტორიზაცია და PostgreSQL ბაზა Supabase-ში.** თქვენს კომპიუტერზე მუდმივად გაშვებული Node სერვერი აღარ არის საჭირო.
 
-ეს არის მომზადებული საწყისი კოდი. თქვენი პროექტის მისამართი და გასაღები ჯერ არ არის ჩაწერილი; თქვენს ანგარიშებში მიგრაციები, Edge Function და გამოქვეყნება ჯერ არ შესრულებულა. ძველი SQLite ბაზიდან მონაცემები ავტომატურად არ გადადის.
+პროექტი დაკავშირებულია Supabase-ის branch-check პროექტთან. საწყისი სქემა და manage-users ფუნქცია განთავსებულია, მთავარი ადმინისტრატორი გააქტიურებულია. განთავსების ცნობები იხილეთ DEPLOYMENT.md-ში. ქვემოთ მოყვანილია ახალი გარემოს თავიდან გამართვის ინსტრუქცია; უკვე არსებულ ბაზაში საწყისი მიგრაციები ხელახლა არ გაუშვათ. ძველი SQLite ბაზიდან მონაცემები ავტომატურად არ გადადის.
 
 ## 1. Supabase პროექტი და ბაზა
 
@@ -125,3 +125,4 @@ supabase stop
 `supabase/tests/permissions.sql` გამოიყენეთ მხოლოდ იზოლირებულ სატესტო ბაზაში. მონაცემები rollback-დება, მაგრამ identity sequence შეიძლება წინ წავიდეს. თქვენს ანგარიშში რეალური შესვლის, ფუნქციის განთავსებისა და Pages-ზე სრული სცენარის შემოწმება ცალკე ნაბიჯია; მხოლოდ ფაილების ტესტების გავლა ამას არ ადასტურებს.
 
 ოფიციალური წყაროები: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Database functions](https://supabase.com/docs/guides/database/functions), [Auth Admin createUser](https://supabase.com/docs/reference/javascript/auth-admin-createuser), [GitHub Pages publishing](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
+
