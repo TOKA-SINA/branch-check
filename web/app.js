@@ -1,4 +1,4 @@
-import {sortBranches,formatDuration} from './report-utils.js';
+import {sortBranches,formatDuration} from './report-utils.js?v=comparison-1';
 import {api,initBackend} from './backend.js';
 import {downloadReports} from './export.js';
 const $=s=>document.querySelector(s),app=$('#app');
