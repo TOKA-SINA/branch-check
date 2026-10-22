@@ -21,10 +21,13 @@ begin
  if (select count(*) from public.inspections)<>0 then raise exception 'Inspector read inspections';end if;
  if (select count(*) from public.profiles)<>1 then raise exception 'Inspector read other profiles';end if;
  begin perform public.app_api('/deleted-inspections');raise exception 'Inspector read deleted records';exception when insufficient_privilege then null;end;
+ begin perform public.app_api('/reports/1/purge','POST','{"revision":1,"purge_confirmation":"1"}');raise exception 'Inspector purged record';exception when insufficient_privilege then null;end;
  begin perform public.app_api('/reports/1/delete','POST','{"revision":1}');raise exception 'Inspector deleted record';exception when insufficient_privilege then null;end;
  begin perform public.app_api('/reports/1','PATCH','{"revision":1}');raise exception 'Inspector edited record';exception when insufficient_privilege then null;end;
- begin perform public.app_api('/issues');raise exception 'Inspector read issues';exception when insufficient_privilege then null;end;
- begin perform public.app_api('/reports');raise exception 'Inspector read reports';exception when insufficient_privilege then null;end;
+ if jsonb_typeof(public.app_api('/issues')->'rows')<>'array' then raise exception 'Inspector issues unavailable';end if;
+ if jsonb_typeof(public.app_api('/reports')->'rows')<>'array' or public.app_api('/analysis/catalog')?'users' then raise exception 'Invalid inspector analytics';end if;
+ begin perform public.app_api('/admin/catalog');raise exception 'Inspector read users';exception when insufficient_privilege then null;end;
+ begin perform public.app_api('/export');raise exception 'Inspector exported';exception when insufficient_privilege then null;end;
  begin perform public.app_api('/users/00000000-0000-4000-8000-000000000002','PATCH','{"role":"admin"}');raise exception 'Inspector escalated privileges';exception when insufficient_privilege then null;end;
  begin update public.profiles set role='admin' where id=auth.uid();raise exception 'Direct role write allowed';exception when insufficient_privilege then null;end;
  begin perform public.app_finish_user(auth.uid(),auth.uid(),'admin');raise exception 'Service function exposed';exception when insufficient_privilege then null;end;
@@ -66,6 +69,12 @@ begin
  begin perform public.app_api('/reports/'||i);raise exception 'DELETED_READ_ALLOWED';exception when raise_exception then if sqlerrm='DELETED_READ_ALLOWED' then raise;end if;end;
  perform public.app_api('/reports/'||i||'/restore','POST','{"revision":3}');
  if (public.app_api('/reports')->>'total')::integer<>1 then raise exception 'Restore failed';end if;
+ begin perform public.app_api('/reports/'||i||'/purge','POST',jsonb_build_object('revision',4,'purge_confirmation',i::text));raise exception 'ACTIVE_PURGE_ALLOWED';exception when raise_exception then if sqlerrm='ACTIVE_PURGE_ALLOWED' then raise;end if;end;
+ perform public.app_api('/reports/'||i||'/delete','POST','{"revision":4}');
+ begin perform public.app_api('/reports/'||i||'/purge','POST','{"revision":5,"purge_confirmation":"wrong"}');raise exception 'UNCONFIRMED_PURGE_ALLOWED';exception when raise_exception then if sqlerrm='UNCONFIRMED_PURGE_ALLOWED' then raise;end if;end;
+ perform public.app_api('/reports/'||i||'/purge','POST',jsonb_build_object('revision',5,'purge_confirmation',i::text));
+ if exists(select 1 from public.inspections where id=i) or exists(select 1 from public.answers where inspection_id=i) or jsonb_array_length(public.app_api('/deleted-inspections'))<>0 then raise exception 'Purge incomplete';end if;
+
 
  begin perform public.app_api('/users/00000000-0000-4000-8000-000000000001','PATCH','{"active":false}');raise exception 'TEST_EXPECTED_FAILURE';exception when raise_exception then if sqlerrm='TEST_EXPECTED_FAILURE' then raise;end if;end;
  perform public.app_api('/users/00000000-0000-4000-8000-000000000002','PATCH','{"active":false}');

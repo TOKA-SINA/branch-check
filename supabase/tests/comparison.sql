@@ -31,7 +31,7 @@ do $$ declare r jsonb;q1 text;q2 text;a jsonb;begin
 end $$;
 set local request.jwt.claim.sub='00000000-0000-4000-8000-000000000092';
 do $$ begin
- begin perform public.app_api('/branch-comparison');raise exception 'Inspector could read comparison';exception when insufficient_privilege then null;end;
+ if (public.app_api('/branch-comparison')->>'branch_count')::integer<>3 then raise exception 'Inspector comparison unavailable';end if;
 end $$;
 reset role;
 select pass('Newest equal branch samples, zero branches, dates, multiple criteria and role isolation');
