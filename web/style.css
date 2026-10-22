@@ -7,3 +7,5 @@ fieldset.question{border:0;border-bottom:1px solid var(--line);margin:0;min-widt
 .brand{line-height:1.5;overflow-wrap:break-word}
 
 .issue-stat{text-align:left;color:inherit;font:inherit;width:100%}.issue-stat:hover{outline:2px solid var(--green)}.branch-sort{max-width:100%;min-width:220px}.branch-sort label{margin-bottom:5px}.timing-summary{margin:20px 0;padding:16px;background:#f4f6f3;border-radius:9px}.timing-summary p{margin:5px 0}
+
+.comparison-controls{display:flex;gap:14px;align-items:end;flex-wrap:wrap;max-width:100%}.criteria-filter{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px}.criteria-filter summary{cursor:pointer;font-weight:600;line-height:1.7}.criteria-options{display:grid;gap:10px;margin-top:16px;max-height:280px;overflow:auto}.criteria-options label{display:flex;align-items:flex-start;gap:10px;margin:0;line-height:1.7}.criteria-options input{width:auto;flex-shrink:0;margin-top:5px}.comparison-controls .btn{font-size:12px}.card-head:has(.comparison-controls){flex-wrap:wrap}
