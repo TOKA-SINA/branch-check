@@ -1,0 +1,1 @@
+do $$ declare definition text;begin select pg_get_functiondef('app_private.manage_inspection(text,text,jsonb)'::regprocedure) into definition; execute replace(definition,'public.audit.target=target::text','public.audit.target=current_row.id::text');end $$;
