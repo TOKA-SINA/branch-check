@@ -1,1 +1,1 @@
-{"name":"branch-check-supabase","version":"2.0.0","private":true,"type":"module","engines":{"node":">=22.13"},"scripts":{"start":"node scripts/preview.mjs","test":"node --test scripts/check.test.mjs"}}
+{"name":"branch-check-supabase","version":"2.0.0","private":true,"type":"module","engines":{"node":">=22.13"},"scripts":{"start":"node scripts/preview.mjs","test":"node --test scripts/*.test.mjs"}}

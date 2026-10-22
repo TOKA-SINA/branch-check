@@ -1,0 +1,2 @@
+export function sortBranches(rows,sort='score-desc'){return [...rows].sort((a,b)=>{const tie=String(a.branch_name).localeCompare(String(b.branch_name),'ka');return (sort==='score-asc'?Number(a.score)-Number(b.score):sort==='name'?0:sort==='count'?b.inspections-a.inspections:sort==='issues'?(b.issues||0)-(a.issues||0):Number(b.score)-Number(a.score))||tie})}
+export function formatDuration(seconds){if(seconds==null)return '—';const n=Math.max(0,Math.floor(seconds));return Math.floor(n/3600)+' სთ '+Math.floor(n%3600/60)+' წთ '+n%60+' წმ'}

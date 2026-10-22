@@ -5,3 +5,5 @@ fieldset.question{border:0;border-bottom:1px solid var(--line);margin:0;min-widt
 .setup-steps{padding-left:22px;color:#5c7468;line-height:2.1;margin:28px 0}.setup-steps li{padding:6px 0}
 
 .brand{line-height:1.5;overflow-wrap:break-word}
+
+.issue-stat{text-align:left;color:inherit;font:inherit;width:100%}.issue-stat:hover{outline:2px solid var(--green)}.branch-sort{max-width:100%;min-width:220px}.branch-sort label{margin-bottom:5px}.timing-summary{margin:20px 0;padding:16px;background:#f4f6f3;border-radius:9px}.timing-summary p{margin:5px 0}
