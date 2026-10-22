@@ -39,6 +39,8 @@ set local request.jwt.claims='{"sub":"00000000-0000-4000-8000-000000000001","rol
 do $$
 declare b integer;q integer;i integer;r jsonb;
 begin
+ if jsonb_typeof(public.app_api('/admin/catalog')->'questions')<>'array' then raise exception 'Administrator catalog failed to load';end if;
+ if public.app_api('/me')->>'role'<>'admin' then raise exception 'Administrator profile failed to load';end if;
  if (public.app_api('/reports')->>'total')::integer<>1 then raise exception 'Incorrect report count';end if;
  select id into b from public.branches where name='RLS test branch';select id into q from public.questions where text='RLS global question';select id into i from public.inspections where request_key='00000000-0000-4000-8000-000000000003';
  perform public.app_api('/branches/'||b,'PATCH','{"name":"Renamed","active":false}');
