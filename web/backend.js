@@ -14,6 +14,7 @@ async function rpc(route,method,payload){
  if(error){const message=error.code==='42501'?'წვდომა შეზღუდულია. შედით ხელახლა ან მიმართეთ ადმინისტრატორს.':error.code?.startsWith('23')?'შეამოწმეთ ველები: მნიშვნელობა არასწორია ან უკვე გამოიყენება.':error.message;throw Error(message)}
  return data;
 }
+async function periodComparisonRpc(payload){ const {data,error}=await client.rpc('period_comparison_api',{payload:payload||{}}); if(error)throw Error(error.code==='42501'?'წვდომა შეზღუდულია.':error.message); return data }
 async function complianceRpc(route,method,payload){ const {data,error}=await client.rpc('compliance_api',{route,method,payload:payload||{}}); if(error)throw Error(error.code==='42501'?'წვდომა შეზღუდულია.':error.message); return data }
 async function adminMonitoringRpc(route,method,payload){ const {data,error}=await client.rpc('monitoring_admin_api',{route,method,payload:payload||{}}); if(error)throw Error(error.code==='42501'?'წვდომა მხოლოდ Admin-ს აქვს.':error.message); return data }
 async function monitoringRpc(route,method,payload){
@@ -38,6 +39,7 @@ export async function api(url,method='GET',body){
  if(route==='/logout'){const {error}=await client.auth.signOut({scope:'local'});if(error)throw Error('გასვლა ვერ შესრულდა. სცადეთ ხელახლა.');return {ok:true}}
  const {data:{session},error}=await client.auth.getSession();
  if(error||!session)throw Error('გთხოვთ შეხვიდეთ სისტემაში.');
+ if(route==='/period-comparison')return periodComparisonRpc(method==='GET'?Object.fromEntries(parsed.searchParams):body);
  if(route.startsWith('/compliance'))return complianceRpc(route.replace('/compliance',''),method,method==='GET'?Object.fromEntries(parsed.searchParams):body);
  if(route.startsWith('/admin/monitoring'))return adminMonitoringRpc(route.replace('/admin/monitoring',''),method,method==='GET'?Object.fromEntries(parsed.searchParams):body);
  if(route.startsWith('/monitoring')||route.startsWith('/notifications'))return monitoringRpc(route,method,method==='GET'?Object.fromEntries(parsed.searchParams):body);
