@@ -71,7 +71,7 @@ begin
    and (p_to is null or i.created_at < ((p_to+1)::timestamp at time zone 'Asia/Tbilisi'))
    and (p_branch is null or i.branch_id=p_branch)
  ), scores as (
-  select i.*,round(avg(a.rating),2) score,count(a.id) answer_count from filtered i join public.answers a on a.inspection_id=i.id group by i.id,i.branch_id,i.branch_name,i.user_id,i.user_name,i.created_at,i.note,i.request_key,i.started_at,i.duration_seconds,i.revision
+  select i.id,i.branch_id,i.branch_name,i.user_id,i.user_name,i.created_at,i.note,i.request_key,i.started_at,i.duration_seconds,i.revision,round(avg(a.rating),2) score,count(a.id) answer_count from filtered i join public.answers a on a.inspection_id=i.id group by i.id,i.branch_id,i.branch_name,i.user_id,i.user_name,i.created_at,i.note,i.request_key,i.started_at,i.duration_seconds,i.revision
  ), latest as (select * from scores order by created_at desc,id desc limit 200),
  monitoring as (
   select mi.branch_id,round(sum(mi.penalty_applied),2) monitoring_penalty,
@@ -106,5 +106,6 @@ begin
  return result;
 end $$;
 revoke all on function app_private.report_data(date,date,integer,boolean) from public,anon,authenticated;
+
 
 
