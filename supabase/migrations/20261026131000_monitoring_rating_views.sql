@@ -12,7 +12,8 @@ begin
  with ranked as (
   select i.*,row_number() over(partition by i.branch_id order by i.created_at desc,i.id desc) position
   from public.inspections i
-  where (nullif(payload->>'from','') is null or i.created_at >= (nullif(payload->>'from','')::date::timestamp at time zone 'Asia/Tbilisi'))
+  where i.deleted_at is null
+   and (nullif(payload->>'from','') is null or i.created_at >= (nullif(payload->>'from','')::date::timestamp at time zone 'Asia/Tbilisi'))
    and (nullif(payload->>'to','') is null or i.created_at < ((nullif(payload->>'to','')::date+1)::timestamp at time zone 'Asia/Tbilisi'))
    and (nullif(payload->>'branch','') is null or i.branch_id=(payload->>'branch')::integer)
  ), counts as (select branch_id,count(*) n from ranked group by branch_id), common as (select coalesce(min(n),0) n,count(*) branches from counts),
@@ -57,7 +58,8 @@ begin
    select i.id,i.created_at,i.branch_name,i.user_name,a.question_text,a.rating,i.note,
     coalesce((select round(sum(mi.penalty_applied),2) from public.monitoring_issues mi where mi.branch_id=i.branch_id and mi.deleted_at is null and (p_from is null or mi.created_at >= (p_from::timestamp at time zone 'Asia/Tbilisi')) and (p_to is null or mi.created_at < ((p_to+1)::timestamp at time zone 'Asia/Tbilisi'))),0) monitoring_penalty
    from public.inspections i join public.answers a on a.inspection_id=i.id
-   where (p_from is null or i.created_at >= (p_from::timestamp at time zone 'Asia/Tbilisi'))
+   where i.deleted_at is null
+    and (p_from is null or i.created_at >= (p_from::timestamp at time zone 'Asia/Tbilisi'))
     and (p_to is null or i.created_at < ((p_to+1)::timestamp at time zone 'Asia/Tbilisi'))
     and (p_branch is null or i.branch_id=p_branch)
    order by i.created_at desc,a.id limit 50001
@@ -67,7 +69,8 @@ begin
  end if;
  with filtered as (
   select i.* from public.inspections i
-  where (p_from is null or i.created_at >= (p_from::timestamp at time zone 'Asia/Tbilisi'))
+  where i.deleted_at is null
+    and (p_from is null or i.created_at >= (p_from::timestamp at time zone 'Asia/Tbilisi'))
    and (p_to is null or i.created_at < ((p_to+1)::timestamp at time zone 'Asia/Tbilisi'))
    and (p_branch is null or i.branch_id=p_branch)
  ), scores as (
@@ -106,6 +109,8 @@ begin
  return result;
 end $$;
 revoke all on function app_private.report_data(date,date,integer,boolean) from public,anon,authenticated;
+
+
 
 
 
