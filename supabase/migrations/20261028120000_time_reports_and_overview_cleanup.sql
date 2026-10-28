@@ -99,18 +99,18 @@ grant execute on function public.supervisor_time_api(text,text,jsonb) to authent
 
 create or replace function public.monitoring_report_api(payload jsonb default '{}'::jsonb)
 returns jsonb language plpgsql security definer set search_path to public, app_private as $$
-declare actor public.profiles%rowtype; from_date date; to_date date; criterion_id bigint; branch_id integer; sort_value text:=coalesce(nullif(payload->>'sort',''),'penalty-desc'); result jsonb;
+declare actor public.profiles%rowtype; from_date date; to_date date; filter_criterion_id bigint; filter_branch_id integer; sort_value text:=coalesce(nullif(payload->>'sort',''),'penalty-desc'); result jsonb;
 begin
  select * into actor from public.profiles where id=auth.uid() and active and deleted_at is null;
  if actor.id is null or actor.role<>'admin' then raise exception 'რეპორტი მხოლოდ Admin-ს შეუძლია.' using errcode='42501'; end if;
- from_date:=nullif(payload->>'from','')::date; to_date:=nullif(payload->>'to','')::date; branch_id:=nullif(payload->>'branch','')::integer; criterion_id:=nullif(payload->>'criterion','')::bigint;
+ from_date:=nullif(payload->>'from','')::date; to_date:=nullif(payload->>'to','')::date; filter_branch_id:=nullif(payload->>'branch','')::integer; filter_criterion_id:=nullif(payload->>'criterion','')::bigint;
  if from_date is not null and to_date is not null and from_date>to_date then raise exception 'დასაწყისი თარიღი დასასრულზე გვიანი ვერ იქნება.'; end if;
  if sort_value not in ('penalty-desc','penalty-asc','count-desc','count-asc') then raise exception 'არასწორი დალაგება.'; end if;
  with grouped as (
   select i.branch_id,b.name branch_name,count(*)::integer issue_count,round(sum(i.penalty_applied),2) penalty_sum,
    count(*) filter(where i.status='open')::integer open_count,count(*) filter(where i.status='closed')::integer closed_count
   from public.monitoring_issues i join public.branches b on b.id=i.branch_id
-  where i.deleted_at is null and (from_date is null or i.created_at >= (from_date::timestamp at time zone 'Asia/Tbilisi')) and (to_date is null or i.created_at < ((to_date+1)::timestamp at time zone 'Asia/Tbilisi')) and (branch_id is null or i.branch_id=branch_id) and (criterion_id is null or i.criterion_id=criterion_id)
+  where i.deleted_at is null and (from_date is null or i.created_at >= (from_date::timestamp at time zone 'Asia/Tbilisi')) and (to_date is null or i.created_at < ((to_date+1)::timestamp at time zone 'Asia/Tbilisi')) and (filter_branch_id is null or i.branch_id=filter_branch_id) and (filter_criterion_id is null or i.criterion_id=filter_criterion_id)
   group by i.branch_id,b.name
  )
  select jsonb_build_object('sort',sort_value,'criteria',coalesce((select jsonb_agg(to_jsonb(c) order by c.id) from public.monitoring_criteria c),'[]'::jsonb),'rows',coalesce((select jsonb_agg(to_jsonb(g) order by case when sort_value='penalty-desc' then penalty_sum end desc,case when sort_value='penalty-asc' then penalty_sum end asc,case when sort_value='count-desc' then issue_count end desc,case when sort_value='count-asc' then issue_count end asc,branch_name) from grouped g),'[]'::jsonb)) into result;
