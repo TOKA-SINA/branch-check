@@ -60,7 +60,7 @@ begin
     and (nullif(payload->>'branch','') is null or t.branch_id=(payload->>'branch')::integer)
    group by t.branch_id,b.name,t.supervisor_user_id,t.supervisor_name
   )
-  select jsonb_build_object('from',from_date,'to',to_date,'sort',sort_value,'rows',coalesce((select jsonb_agg(to_jsonb(g) order by case when sort_value='asc' then total_seconds end asc,case when sort_value='desc' then total_seconds end desc,branch_name) from grouped),'[]'::jsonb)) into result;
+  select jsonb_build_object('from',from_date,'to',to_date,'sort',sort_value,'rows',coalesce((select jsonb_agg(to_jsonb(g) order by case when sort_value='asc' then total_seconds end asc,case when sort_value='desc' then total_seconds end desc,branch_name) from grouped g),'[]'::jsonb)) into result;
   return result;
  end if;
 
@@ -113,7 +113,7 @@ begin
   where i.deleted_at is null and (from_date is null or i.created_at >= (from_date::timestamp at time zone 'Asia/Tbilisi')) and (to_date is null or i.created_at < ((to_date+1)::timestamp at time zone 'Asia/Tbilisi')) and (branch_id is null or i.branch_id=branch_id) and (criterion_id is null or i.criterion_id=criterion_id)
   group by i.branch_id,b.name
  )
- select jsonb_build_object('sort',sort_value,'criteria',coalesce((select jsonb_agg(to_jsonb(c) order by c.id) from public.monitoring_criteria c),'[]'::jsonb),'rows',coalesce((select jsonb_agg(to_jsonb(g) order by case when sort_value='penalty-desc' then penalty_sum end desc,case when sort_value='penalty-asc' then penalty_sum end asc,case when sort_value='count-desc' then issue_count end desc,case when sort_value='count-asc' then issue_count end asc,branch_name) from grouped),'[]'::jsonb)) into result;
+ select jsonb_build_object('sort',sort_value,'criteria',coalesce((select jsonb_agg(to_jsonb(c) order by c.id) from public.monitoring_criteria c),'[]'::jsonb),'rows',coalesce((select jsonb_agg(to_jsonb(g) order by case when sort_value='penalty-desc' then penalty_sum end desc,case when sort_value='penalty-asc' then penalty_sum end asc,case when sort_value='count-desc' then issue_count end desc,case when sort_value='count-asc' then issue_count end asc,branch_name) from grouped g),'[]'::jsonb)) into result;
  return result;
 end $$;
 revoke all on function public.monitoring_report_api(jsonb) from public,anon;
