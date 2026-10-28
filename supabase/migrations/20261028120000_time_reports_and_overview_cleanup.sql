@@ -40,7 +40,7 @@ begin
      greatest(0,extract(epoch from (coalesce(t.exit_at,now())-t.entry_at)))::bigint duration_seconds,
      t.recorded_by,t.created_at,t.updated_at
     from public.supervisor_branch_time t join public.branches b on b.id=t.branch_id
-    where (actor.role='admin' or (t.entry_at at time zone 'Asia/Tbilisi')::date=(now() at time zone 'Asia/Tbilisi')::date)
+    where (actor.role='admin' or (t.recorded_by=actor.id and (t.entry_at at time zone 'Asia/Tbilisi')::date=(now() at time zone 'Asia/Tbilisi')::date))
    ) x),'[]'::jsonb)
   );
  end if;
