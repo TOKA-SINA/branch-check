@@ -44,7 +44,7 @@ Deno.serve(async (req: Request) => {
    const username=typeof b.username==='string'?b.username.trim().toLowerCase():'';
    const name=typeof b.name==='string'?b.name.trim():'';
    const role=String(b.role||'');
-   if(!/^[a-z0-9_.-]{3,64}$/.test(username)||!name||name.length>200||!['inspector','monitoring'].includes(role))return reply(400,{error:'შეამოწმეთ სახელი, მომხმარებლის სახელი და როლი.'});
+   if(!/^[a-z0-9_.-]{3,64}$/.test(username)||!name||name.length>200||!['admin','inspector','monitoring'].includes(role))return reply(400,{error:'შეამოწმეთ სახელი, მომხმარებლის სახელი და როლი.'});
    if(typeof b.password!=='string'||b.password.length<6||b.password.length>128)return reply(400,{error:'პაროლი უნდა შეიცავდეს 6–128 სიმბოლოს.'});
    const {data:created,error}=await db.auth.admin.createUser({email:username+'@'+domain,password:b.password,email_confirm:true,user_metadata:{name}});
    if(error||!created.user)return reply(400,{error:'ანგარიშის შექმნა ვერ მოხერხდა. შეამოწმეთ, ხომ არ არსებობს ეს მომხმარებელი.'});
@@ -65,7 +65,7 @@ Deno.serve(async (req: Request) => {
   }
 
   if(b.action==='role'){
-   if(typeof b.id!=='string'||!['inspector','monitoring'].includes(String(b.role)))return reply(400,{error:'არასწორი როლი.'});
+   if(typeof b.id!=='string'||!['admin','inspector','monitoring'].includes(String(b.role)))return reply(400,{error:'არასწორი როლი.'});
    if(b.id===actor.id)return reply(400,{error:'საკუთარი Admin როლის შეცვლა დაუშვებელია.'});
    const {data:target}=await db.from('profiles').select('id,role').eq('id',b.id).single();
    if(!target)return reply(404,{error:'მომხმარებელი ვერ მოიძებნა.'});
@@ -111,10 +111,11 @@ Deno.serve(async (req: Request) => {
   if(b.action==='delete'){
    if(typeof b.id!=='string'||b.confirmation!=='დიახ ვაცნობიერებ რომ მსურს წაშლა')return reply(400,{error:'წაშლის დასადასტურებლად ზუსტად შეიყვანეთ მოთხოვნილი ტექსტი.'});
    if(b.id===actor.id)return reply(400,{error:'საკუთარი Admin ანგარიშის წაშლა დაუშვებელია.'});
+   await db.from('branches').update({supervisor_user_id:null}).eq('supervisor_user_id',b.id);
    const {error}=await db.from('profiles').update({active:false,deleted_at:new Date().toISOString()}).eq('id',b.id);
-   if(error)return reply(400,{error:'მომხმარებლის არქივირება ვერ მოხერხდა.'});
+   if(error)return reply(400,{error:'მომხმარებლის სამუდამო წაშლა ვერ მოხერხდა.'});
    await db.auth.admin.updateUserById(String(b.id),{ban_duration:'876000h'});
-   await db.from('audit').insert({user_id:actor.id,action:'user.deleted.tombstone',target:String(b.id)});
+   await db.from('audit').insert({user_id:actor.id,action:'user.deleted',target:String(b.id)});
    return reply(200,{ok:true});
   }
 
