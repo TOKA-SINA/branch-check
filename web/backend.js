@@ -48,6 +48,7 @@ export async function api(url,method='GET',body){
  if(route==='/password'&&method==='POST')return edge({...body,action:'self-password'});
  if(route==='/users'&&method==='POST')return edge({...body,action:'create'});
  const userPatch=route.match(/^\/users\/([a-f0-9-]{36})$/);
+ if(userPatch&&method==='DELETE')return edge({action:'delete',id:userPatch[1],confirmation:'დიახ ვაცნობიერებ რომ მსურს წაშლა'});
  if(userPatch&&method==='PATCH'){
   const id=userPatch[1];
   if(body.password!==undefined)return edge({action:'password',id,password:body.password});
