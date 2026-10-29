@@ -82,7 +82,6 @@ Deno.serve(async (req: Request) => {
    const username=typeof b.username==='string'?b.username.trim().toLowerCase():target.username;
    const name=typeof b.name==='string'?b.name.trim():target.name;
    if(!/^[a-z0-9_.-]{3,64}$/.test(username)||!name||name.length>200)return reply(400,{error:'შეამოწმეთ სახელი და username.'});
-   if(target.role==='admin'&&username!==target.username)return reply(400,{error:'Admin username-ის შეცვლა ამ workflow-ით დაუშვებელია.'});
    const oldEmail=target.username+'@'+domain,newEmail=username+'@'+domain;
    const {error:authUpdate}=await db.auth.admin.updateUserById(target.id,{email:newEmail,email_confirm:true,user_metadata:{name}});
    if(authUpdate)return reply(400,{error:'Auth username-ის შეცვლა ვერ მოხერხდა.'});
